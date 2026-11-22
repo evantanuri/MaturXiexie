@@ -12,7 +12,7 @@ StepSafe memadukan laporan kondisi trotoar berbasis komunitas dengan data lingku
 
 - **Target URL Produksi (STB):** `https://stepsafe.stei.fun`
 - **Base API:** `https://stepsafe.stei.fun/api`
-- **Swagger UI:** `https://stepsafe.stei.fun/docs`
+- **Swagger UI:** `https://stepsafe.stei.fun/api/docs`
 - **Repositori GitHub:** `https://github.com/evantanuri/MaturXiexie.git`
 
 ## Anggota Kelompok & Pembagian Peran

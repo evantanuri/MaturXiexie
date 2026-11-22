@@ -21,7 +21,7 @@ export function createApp() {
 
   const openApiPath = path.resolve(__dirname, "../openapi.yaml");
   const openApiDocument = YAML.parse(fs.readFileSync(openApiPath, "utf8"));
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
+  app.use(["/docs", "/api/docs"], swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
   app.get("/api/health", async (_req: Request, res: Response) => {
     const dbOk = await checkDatabaseHealth();
