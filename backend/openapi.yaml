@@ -1,0 +1,663 @@
+openapi: 3.0.3
+info:
+  title: StepSafe Core Service API
+  version: 1.0.0
+  description: >
+    Microservice inti StepSafe (Kelompok MaturXiexie - K01) untuk pelaporan dan
+    validasi kondisi trotoar, kalkulasi Walkability Index, serta ringkasan
+    wawasan area (Area Insight Summarization).
+servers:
+  - url: /api
+    description: Current Server (otomatis mengikuti localhost atau STB)
+  - url: https://stepsafe.stei.fun/api
+    description: Production STB (Cloudflare Tunnel K01)
+  - url: http://localhost:3000/api
+    description: Local Development
+
+tags:
+  - name: System
+    description: Pengecekan kesehatan layanan
+  - name: Identity & Access
+    description: Registrasi, login JWT, dan profil pengguna
+  - name: Community Reporting
+    description: Pelaporan hambatan trotoar dan validasi silang komunitas
+  - name: Walkability & Insight
+    description: Kalkulasi Walkability Index dan rangkuman kondisi kawasan
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT untuk pengguna aplikasi mobile
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API Key server-to-server untuk kelompok mitra
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          example: UNAUTHORIZED
+        message:
+          type: string
+          example: Token tidak valid atau sudah kedaluwarsa.
+
+    UserProfile:
+      type: object
+      required: [id, name, email, reputation_score, created_at]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Evan Nathanael
+        email:
+          type: string
+          format: email
+          example: evan@stepsafe.test
+        reputation_score:
+          type: integer
+          example: 120
+        created_at:
+          type: string
+          format: date-time
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    ReportCategory:
+      type: string
+      enum:
+        - broken_surface
+        - blocked_path
+        - no_ramp
+        - no_tactile_paving
+        - poor_lighting
+        - flooding
+        - good_condition
+
+    ReportStatus:
+      type: string
+      enum:
+        - pending
+        - verified
+        - rejected
+        - resolved
+        - expired
+
+    ValidationAction:
+      type: string
+      enum:
+        - confirm
+        - reject
+        - resolve
+
+    CreateReportRequest:
+      type: object
+      required: [lat, lng, category, severity, is_disability_barrier]
+      properties:
+        lat:
+          type: number
+          minimum: -90
+          maximum: 90
+          example: -6.8915
+        lng:
+          type: number
+          minimum: -180
+          maximum: 180
+          example: 107.6107
+        category:
+          $ref: '#/components/schemas/ReportCategory'
+        severity:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+        is_disability_barrier:
+          type: boolean
+          example: true
+        description:
+          type: string
+          maxLength: 500
+          example: Trotoar depan gerbang tidak memiliki ramp untuk kursi roda.
+
+    SidewalkReport:
+      type: object
+      required:
+        - id
+        - reporter_id
+        - lat
+        - lng
+        - category
+        - severity
+        - is_disability_barrier
+        - status
+        - confirm_count
+        - reject_count
+        - resolve_count
+        - created_at
+        - expires_at
+      properties:
+        id:
+          type: integer
+          example: 10
+        reporter_id:
+          type: integer
+          example: 1
+        lat:
+          type: number
+          example: -6.8915
+        lng:
+          type: number
+          example: 107.6107
+        category:
+          $ref: '#/components/schemas/ReportCategory'
+        severity:
+          type: integer
+          example: 4
+        is_disability_barrier:
+          type: boolean
+          example: true
+        description:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ReportStatus'
+        confirm_count:
+          type: integer
+          example: 2
+        reject_count:
+          type: integer
+          example: 0
+        resolve_count:
+          type: integer
+          example: 0
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+
+    EnvironmentalConditions:
+      type: object
+      required: [source, is_fallback]
+      properties:
+        temperature_c:
+          type: number
+          nullable: true
+          example: 26.4
+        rain_mm:
+          type: number
+          nullable: true
+          example: 0.0
+        european_aqi:
+          type: number
+          nullable: true
+          example: 42
+        pm2_5:
+          type: number
+          nullable: true
+          example: 14.2
+        source:
+          type: string
+          example: open-meteo
+        is_fallback:
+          type: boolean
+          example: false
+
+    WalkabilityResponse:
+      type: object
+      required: [lat, lng, radius_m, score, label, verified_report_count, disability_barrier_count, environment]
+      properties:
+        lat:
+          type: number
+          example: -6.8915
+        lng:
+          type: number
+          example: 107.6107
+        radius_m:
+          type: integer
+          example: 500
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 72
+        label:
+          type: string
+          enum: [Sangat Layak, Layak, Cukup, Kurang Layak, Tidak Layak]
+          example: Layak
+        verified_report_count:
+          type: integer
+          example: 3
+        disability_barrier_count:
+          type: integer
+          example: 1
+        environment:
+          $ref: '#/components/schemas/EnvironmentalConditions'
+
+    AreaInsightResponse:
+      type: object
+      required:
+        - lat
+        - lng
+        - radius_m
+        - total_verified_reports
+        - disability_barrier_ratio
+        - dominant_issues
+        - walkability_score
+        - environment
+      properties:
+        lat:
+          type: number
+          example: -6.8915
+        lng:
+          type: number
+          example: 107.6107
+        radius_m:
+          type: integer
+          example: 500
+        total_verified_reports:
+          type: integer
+          example: 5
+        disability_barrier_ratio:
+          type: number
+          minimum: 0
+          maximum: 1
+          example: 0.4
+        dominant_issues:
+          type: array
+          items:
+            type: object
+            required: [category, count]
+            properties:
+              category:
+                $ref: '#/components/schemas/ReportCategory'
+              count:
+                type: integer
+        walkability_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 68
+        environment:
+          $ref: '#/components/schemas/EnvironmentalConditions'
+
+paths:
+  /health:
+    get:
+      tags: [System]
+      summary: Cek status microservice
+      responses:
+        '200':
+          description: Layanan berjalan normal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: stepsafe-core
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /auth/register:
+    post:
+      tags: [Identity & Access]
+      summary: Registrasi akun pengguna baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  example: Evan Nathanael
+                email:
+                  type: string
+                  format: email
+                  example: evan@stepsafe.test
+                password:
+                  type: string
+                  minLength: 6
+                  example: rahasia123
+      responses:
+        '201':
+          description: Registrasi berhasil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Validasi masukan gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email sudah terdaftar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [Identity & Access]
+      summary: Login pengguna untuk mendapatkan Bearer JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: demo@stepsafe.test
+                password:
+                  type: string
+                  example: demo123
+      responses:
+        '200':
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Kredensial salah
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/me:
+    get:
+      tags: [Identity & Access]
+      summary: Profil pengguna aktif beserta skor reputasi
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profil pengguna
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Token tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reports:
+    post:
+      tags: [Community Reporting]
+      summary: Buat laporan kondisi trotoar baru
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReportRequest'
+      responses:
+        '201':
+          description: Laporan dibuat dengan status pending
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SidewalkReport'
+        '400':
+          description: Validasi masukan gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Tidak terautentikasi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags: [Community Reporting]
+      summary: Daftar laporan trotoar (dapat difilter radius & status)
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      parameters:
+        - name: lat
+          in: query
+          schema: { type: number }
+          description: Latitude pusat pencarian
+        - name: lng
+          in: query
+          schema: { type: number }
+          description: Longitude pusat pencarian
+        - name: radius
+          in: query
+          schema: { type: integer, default: 500, minimum: 50, maximum: 5000 }
+          description: Radius pencarian dalam meter
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ReportStatus'
+      responses:
+        '200':
+          description: Daftar laporan trotoar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  reports:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SidewalkReport'
+        '401':
+          description: Token JWT atau X-API-Key tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reports/{id}:
+    get:
+      tags: [Community Reporting]
+      summary: Detail satu laporan trotoar
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Detail laporan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SidewalkReport'
+        '401':
+          description: Tidak terautentikasi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Laporan tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reports/{id}/validate:
+    post:
+      tags: [Community Reporting]
+      summary: Validasi silang laporan oleh pengguna lain (confirm, reject, resolve)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  $ref: '#/components/schemas/ValidationAction'
+      responses:
+        '200':
+          description: Validasi tercatat dan status laporan diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SidewalkReport'
+        '400':
+          description: Aksi tidak valid atau pelapor memvalidasi laporannya sendiri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Tidak terautentikasi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Laporan tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Pengguna sudah pernah memvalidasi laporan ini
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /walkability:
+    get:
+      tags: [Walkability & Insight]
+      summary: Kalkulasi Walkability Index (0-100) pada lokasi dan radius tertentu
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema: { type: number }
+          example: -6.8915
+        - name: lng
+          in: query
+          required: true
+          schema: { type: number }
+          example: 107.6107
+        - name: radius
+          in: query
+          schema: { type: integer, default: 500, minimum: 50, maximum: 5000 }
+      responses:
+        '200':
+          description: Skor Walkability Index dan kondisi lingkungan terkini
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalkabilityResponse'
+        '400':
+          description: Parameter koordinat tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token JWT atau X-API-Key tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /insights:
+    get:
+      tags: [Walkability & Insight]
+      summary: Ringkasan wawasan kondisi trotoar kawasan (Area Insight Summarization)
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema: { type: number }
+          example: -6.8915
+        - name: lng
+          in: query
+          required: true
+          schema: { type: number }
+          example: 107.6107
+        - name: radius
+          in: query
+          schema: { type: integer, default: 500, minimum: 50, maximum: 5000 }
+      responses:
+        '200':
+          description: Ringkasan statistik area
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaInsightResponse'
+        '400':
+          description: Parameter koordinat tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token JWT atau X-API-Key tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

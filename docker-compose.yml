@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-stepsafe}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stepsafe123}
+      POSTGRES_DB: ${POSTGRES_DB:-stepsafe}
+    volumes:
+      - stepsafe_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-stepsafe} -d ${POSTGRES_DB:-stepsafe}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 192m
+    cpus: 0.25
+
+  core-service:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-stepsafe}:${POSTGRES_PASSWORD:-stepsafe123}@db:5432/${POSTGRES_DB:-stepsafe}
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: 256m
+    cpus: 0.50
+
+  gateway:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - core-service
+    mem_limit: 64m
+    cpus: 0.20
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run --token ${TUNNEL_TOKEN}
+    depends_on:
+      - gateway
+    mem_limit: 64m
+    cpus: 0.20
+
+volumes:
+  stepsafe_pgdata:
