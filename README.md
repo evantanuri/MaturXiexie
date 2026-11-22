@@ -6,7 +6,7 @@
 - **Health Check:** `https://stepsafe.stei.fun/api/health`
 - **Dokumentasi Interaktif (Swagger UI):** `https://stepsafe.stei.fun/api/docs`
 - **Kontrak OpenAPI 3.0.3:** [`backend/openapi.yaml`](backend/openapi.yaml)
-- **Repositori GitHub:** `https://github.com/evantanuri/MaturXiexie`
+- **Repositori GitHub:** `https://github.com/evantanuri/StepSafe`
 
 ## Anggota Kelompok & Pembagian Peran
 | Anggota | NIM | Peran | Tanggung Jawab Utama |
@@ -177,7 +177,7 @@ docker compose up -d --build db core-service gateway
 
 ### Produksi di STB (`/www/stepsafe`)
 ```bash
-git clone -b develop https://github.com/evantanuri/MaturXiexie.git /www/stepsafe
+git clone -b develop https://github.com/evantanuri/StepSafe.git /www/stepsafe
 cd /www/stepsafe
 cp .env.example .env
 # Isi POSTGRES_PASSWORD, JWT_SECRET acak, dan TUNNEL_TOKEN di .env (jangan pernah di-commit)

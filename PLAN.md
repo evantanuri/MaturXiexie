@@ -9,7 +9,7 @@ Dokumen ini menjadi acuan bersama antara **Anggota A (TST)** dan **Anggota B (PW
 - **Nama Aplikasi:** StepSafe
 - **Tema:** Tema 1 (Smart City & Mobility, referensi JalanKami)
 - **Target Domain Publik (STB):** `https://stepsafe.stei.fun`
-- **Repositori GitHub:** `https://github.com/evantanuri/MaturXiexie.git`
+- **Repositori GitHub:** `https://github.com/evantanuri/StepSafe.git`
 
 ### Batasan Hardware STB (Set-Top Box)
 Hasil inspeksi perangkat STB target (`aml-s9xx-box`, arsitektur `linux/arm64`):
@@ -96,7 +96,7 @@ Kontrak final tersedia di [`backend/openapi.yaml`](backend/openapi.yaml) dan dap
 ## 5. Struktur Repositori Aktual
 
 ```text
-MaturXiexie/
+StepSafe/
 ├── README.md
 ├── PLAN.md
 ├── CONTRIBUTING.md
