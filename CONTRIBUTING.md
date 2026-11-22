@@ -6,9 +6,9 @@ Aturan kerja bersama di repositori **MaturXiexie (StepSafe)** untuk **Evan Natha
 
 ## 1. Pembagian Kepemilikan Area Kerja
 Untuk mencegah konflik merge saat bekerja paralel:
-- **Evan (`18224019`, TST):** bertanggung jawab atas `backend/`, `integration/`, serta dokumentasi API (`docs/openapi.yaml` & `README.pdf`).
+- **Evan (`18224019`, TST):** bertanggung jawab atas `backend/` (termasuk `backend/openapi.yaml`), `gateway/`, `docker-compose.yml`, `.env.example`, `integration/`, serta dokumentasi backend (`README.pdf`).
 - **Satria (`18224011`, PWAM):** bertanggung jawab atas `frontend/` (React Native Expo), unit test Jest, laporan testing, aset branding, dan build `Aplikasi_Release.apk`.
-- **Bersama:** perubahan pada `PLAN.md`, kontrak API (`openapi.yaml`), entri API Registry, dan kesepakatan integrasi lintas kelompok.
+- **Bersama:** perubahan pada `PLAN.md`, kontrak API (`backend/openapi.yaml`), entri API Registry, dan kesepakatan integrasi lintas kelompok.
 
 > Jika ingin mengubah kontrak endpoint (request/response/auth) setelah M13, wajib diskusikan terlebih dahulu sebelum merge ke `develop` agar kode backend dan mobile tidak putus.
 
@@ -59,5 +59,5 @@ Gunakan format ringkas dan deskriptif:
 ---
 
 ## 5. Quality Gate Sebelum Merge ke `main`
-- **Backend (TST):** typecheck/lint/build dan seluruh unit/integration test lulus; `docker-compose.yml` menyertakan `mem_limit`, `cpus`, dan `restart: unless-stopped`; endpoint publik dan `/docs` merespons normal.
+- **Backend (TST):** `npm run typecheck` dan `npm run build` lulus; `docker-compose.yml` menyertakan `mem_limit`, `cpus`, dan `restart: unless-stopped`; `gateway/nginx.conf` menerapkan rate limiting; endpoint publik `/api/health` dan `/docs` merespons normal.
 - **Mobile (PWAM):** unit test Jest lulus; seluruh state (`loading`, `error`, `empty`, serta simulasi API kelompok mitra mati) tertangani tanpa crash; APK release menggunakan URL HTTPS produksi (`https://stepsafe.stei.fun/api`).
