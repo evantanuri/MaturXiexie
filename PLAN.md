@@ -1,11 +1,11 @@
-# Project Plan: StepSafe (Kelompok MaturXiexie, K01)
+# Project Plan: StepSafe (Kelompok StepSafe, K01)
 
 Dokumen ini menjadi acuan bersama antara **Anggota A (TST)** dan **Anggota B (PWAM)** dari fase perencanaan hingga pengumpulan akhir Tugas Besar pada **13 Desember 2026, 23.59 WIB**.
 
 ---
 
 ## 1. Identitas Proyek & Target Lingkungan
-- **Nama Kelompok:** MaturXiexie (Kelas K01)
+- **Nama Kelompok:** StepSafe (Kelas K01)
 - **Nama Aplikasi:** StepSafe
 - **Tema:** Tema 1 (Smart City & Mobility, referensi JalanKami)
 - **Target Domain Publik (STB):** `https://stepsafe.stei.fun`

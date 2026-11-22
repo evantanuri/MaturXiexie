@@ -20,7 +20,7 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default("7d"),
   USER_AGENT: z
     .string()
-    .default("TugasBesar-TST/1.0 (kelompok-MaturXiexie-K01)"),
+    .default("TugasBesar-TST/1.0 (kelompok-stepsafe-K01)"),
 });
 
 export const env = envSchema.parse(process.env);

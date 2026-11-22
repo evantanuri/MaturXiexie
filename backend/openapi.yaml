@@ -3,7 +3,7 @@ info:
   title: StepSafe Core Service API
   version: 1.0.0
   description: >
-    Microservice inti StepSafe (Kelompok MaturXiexie - K01) untuk pelaporan dan
+    Microservice inti StepSafe (Kelompok StepSafe - K01) untuk pelaporan dan
     validasi kondisi trotoar, kalkulasi Walkability Index, serta ringkasan
     wawasan area (Area Insight Summarization).
 servers:

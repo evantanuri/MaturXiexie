@@ -1,7 +1,7 @@
 {
   "name": "stepsafe-backend",
   "version": "1.0.0",
-  "description": "StepSafe Core Microservice (TST - Kelompok MaturXiexie K01)",
+  "description": "StepSafe Core Microservice (TST - Kelompok StepSafe K01)",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

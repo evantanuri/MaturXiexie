@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Panduan konteks dan batasan teknis untuk setiap AI coding agent yang membantu pengerjaan di repositori **MaturXiexie (StepSafe)**.
+Panduan konteks dan batasan teknis untuk setiap AI coding agent yang membantu pengerjaan proyek **StepSafe (Kelompok StepSafe, K01)** pada repositori `MaturXiexie`.
 
 ---
 

@@ -1,6 +1,6 @@
 # Panduan Kolaborasi (CONTRIBUTING)
 
-Aturan kerja bersama di repositori **MaturXiexie (StepSafe)** untuk **Evan Nathanael Tanuri (TST)** dan **Satria Guna Darma (PWAM)**.
+Aturan kerja bersama proyek **StepSafe (Kelompok StepSafe, K01)** untuk **Evan Nathanael Tanuri (TST)** dan **Satria Guna Darma (PWAM)**.
 
 ---
 

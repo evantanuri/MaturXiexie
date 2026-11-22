@@ -1,4 +1,4 @@
-# StepSafe Core Microservice (Kelompok MaturXiexie, Kelas K01)
+# StepSafe Core Microservice (Kelompok StepSafe, Kelas K01)
 
 **StepSafe** adalah sistem intelijen *walkability* dan aksesibilitas pejalan kaki perkotaan (Tema 1: Smart City & Mobility, adaptasi konsep *JalanKami*) untuk Tugas Besar gabungan mata kuliah **II3160 Teknologi Sistem Terintegrasi (TST)** dan **II3140 Pengembangan Aplikasi Web & Mobile (PWAM)** di STEI ITB.
 
@@ -41,7 +41,7 @@ Internet (https://stepsafe.stei.fun/api/...)
 | `db` | `postgres:16-alpine` | `192m` | `0.25` | `unless-stopped` | Jaringan internal Docker saja (tidak membuka port ke internet), volume persisten `stepsafe_pgdata` |
 | `core-service` | Multi-stage `node:20-alpine` | `256m` | `0.50` | `unless-stopped` | Compile `tsc` di stage builder, runtime jalankan `node dist/index.js` |
 | `gateway` | `nginx:1.28-alpine` | `64m` | `0.20` | `unless-stopped` | Reverse proxy + rate limit `10 req/s` (`burst=20`, JSON `429`) |
-| `tunnel` | `cloudflare/cloudflared:latest` | `64m` | `0.20` | `unless-stopped` | Tunnel `k01-MaturXiexie` -> `http://gateway:80` tanpa buka port router |
+| `tunnel` | `cloudflare/cloudflared:latest` | `64m` | `0.20` | `unless-stopped` | Cloudflare Tunnel -> `http://gateway:80` tanpa buka port router |
 
 ---
 
